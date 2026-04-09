@@ -1,8 +1,6 @@
 [build]
   functions = "netlify/functions"
-
-[functions]
-  timeout = 30
+  base = "dennis-naming"
 
 [[redirects]]
   from = "/api/*"
