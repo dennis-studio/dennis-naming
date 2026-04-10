@@ -1248,7 +1248,7 @@ Evaluate ALL ${names.length} names strictly using the rubric. Return ONLY a vali
 Sort names array by total score descending. All ${names.length} names must appear. Return ONLY valid JSON.`;
 
   try {
-    const res = await fetch('/api/evaluate', {
+    const res = await fetch('https://dennis-naming-api.josh-64f.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
