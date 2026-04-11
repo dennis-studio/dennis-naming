@@ -3,838 +3,667 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dennis Naming — Núria Evaluator</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Núria — Dennis Naming Evaluator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: #f5f4f0; color: #0f0f0f; }
-
-:root {
-  --orange: #FF6540;
-  --blue: #5460E8;
-  --dark: #0f0f0f;
-  --mid: #6b6b6b;
-  --light: #f5f4f0;
-  --border: rgba(0,0,0,0.1);
-  --white: #ffffff;
-}
-
-.header {
-  background: var(--dark);
-  padding: 18px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header svg { height: 22px; width: auto; }
-.header-tag {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  font-family: 'DM Mono', monospace;
-}
-
-.main { padding: 32px; max-width: 1100px; margin: 0 auto; }
-
-.section-label {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--mid);
-  font-family: 'DM Mono', monospace;
-  margin-bottom: 10px;
-}
-
-.card {
-  background: var(--white);
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-
-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--mid);
-  margin-bottom: 6px;
-  letter-spacing: 0.04em;
-}
-
-input, select, textarea {
-  width: 100%;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: var(--white);
-  color: var(--dark);
-  outline: none;
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b6b'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-  cursor: pointer;
-}
-
-input:focus, select:focus, textarea:focus { border-color: var(--blue); }
-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-.names-input { min-height: 140px; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.9; }
-
-.btn-primary {
-  display: block;
-  width: 100%;
-  background: var(--orange);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-}
-.btn-primary:hover { opacity: 0.88; }
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.btn-secondary {
-  background: var(--dark);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.btn-secondary:hover { opacity: 0.8; }
-
-.btn-outline {
-  background: transparent;
-  color: var(--dark);
-  border: 1px solid rgba(0,0,0,0.15);
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.btn-outline:hover { background: var(--light); }
-
-.loading-state { text-align: center; padding: 80px 20px; }
-.spinner {
-  width: 36px; height: 36px;
-  border: 2px solid rgba(0,0,0,0.08);
-  border-top-color: var(--orange);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-state p { color: var(--mid); font-size: 14px; }
-.loading-name { font-weight: 500; color: var(--dark); margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 13px; }
-.progress-bar { height: 3px; background: rgba(0,0,0,0.06); border-radius: 2px; margin-top: 16px; overflow: hidden; max-width: 320px; margin-left: auto; margin-right: auto; }
-.progress-fill { height: 100%; background: var(--orange); border-radius: 2px; transition: width 0.4s ease; }
-
-.results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.results-title { font-size: 22px; font-weight: 600; color: var(--dark); letter-spacing: -0.02em; }
-.results-sub { font-size: 13px; color: var(--mid); margin-top: 3px; }
-
-.view-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.06); border-radius: 8px; padding: 3px; margin-bottom: 20px; width: fit-content; }
-.tab-btn { padding: 7px 18px; font-size: 13px; font-family: 'DM Sans', sans-serif; border: none; background: transparent; color: var(--mid); border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.15s; }
-.tab-btn.active { background: var(--white); color: var(--dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-
-.score-table { width: 100%; border-collapse: collapse; }
-.score-table th { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid); font-weight: 500; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.07); font-family: 'DM Mono', monospace; }
-.score-table td { padding: 13px 14px; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
-.score-table tr:last-child td { border-bottom: none; }
-.score-table tbody tr { cursor: pointer; transition: background 0.1s; }
-.score-table tbody tr:hover td { background: #fafaf8; }
-.score-table tbody tr.selected td { background: #fff5f2; }
-.name-cell { font-weight: 500; color: var(--dark); }
-
-.score-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; font-family: 'DM Mono', monospace; }
-.score-high { background: #e8f5e9; color: #2e7d32; }
-.score-mid { background: #fff8e1; color: #e65100; }
-.score-low { background: #fce4ec; color: #c62828; }
-
-.total-score { font-size: 16px; font-weight: 600; color: var(--dark); font-family: 'DM Mono', monospace; }
-.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.06); font-size: 11px; font-weight: 500; color: var(--mid); font-family: 'DM Mono', monospace; }
-.rank-badge.top { background: var(--orange); color: white; }
-
-.detail-panel { background: var(--white); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 28px; margin-top: 20px; }
-.detail-name { font-size: 32px; font-weight: 600; color: var(--dark); letter-spacing: -0.03em; margin-bottom: 4px; }
-
-.detail-scores { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
-.score-card { background: var(--light); border-radius: 10px; padding: 14px 18px; min-width: 110px; }
-.score-card-label { font-size: 10px; color: var(--mid); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; }
-.score-card-val { font-size: 24px; font-weight: 600; color: var(--dark); font-family: 'DM Mono', monospace; margin-top: 4px; }
-.score-card-max { font-size: 13px; color: var(--mid); font-weight: 400; }
-.score-card.total { background: var(--dark); }
-.score-card.total .score-card-label { color: rgba(255,255,255,0.4); }
-.score-card.total .score-card-val { color: var(--orange); }
-.score-card.total .score-card-max { color: rgba(255,255,255,0.3); }
-
-.phonetic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
-.phonetic-item { background: var(--light); border-radius: 8px; padding: 10px 14px; }
-.phonetic-item-label { font-size: 10px; color: var(--mid); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; }
-.phonetic-item-val { font-size: 15px; font-weight: 500; color: var(--dark); margin-top: 3px; font-family: 'DM Mono', monospace; }
-
-.positives-neg { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
-.pos-box { background: #f0faf4; border-radius: 10px; padding: 16px; }
-.neg-box { background: #fff5f5; border-radius: 10px; padding: 16px; }
-.pos-box .box-title { font-size: 11px; color: #2e7d32; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-bottom: 10px; }
-.neg-box .box-title { font-size: 11px; color: #c62828; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-bottom: 10px; }
-.bullet-list { list-style: none; }
-.bullet-list li { font-size: 13px; color: var(--dark); padding: 3px 0 3px 16px; line-height: 1.5; position: relative; }
-.bullet-list li:before { content: '—'; position: absolute; left: 0; color: var(--mid); }
-
-.recommendation-box { background: var(--dark); border-radius: 10px; padding: 18px 20px; margin-top: 16px; }
-.recommendation-box .box-title { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-bottom: 10px; }
-.recommendation-box p { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.65; }
-
-.actions-bar { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(0,0,0,0.07); }
-
-.add-btn { padding: 5px 12px; font-size: 12px; font-family: 'DM Sans', monospace; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.15s; border: 1px solid rgba(0,0,0,0.12); background: transparent; color: var(--mid); }
-.add-btn.added { background: var(--orange); color: white; border-color: var(--orange); }
-
-.client-card { background: var(--dark); border-radius: 16px; padding: 36px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.client-card-accent { position: absolute; top: 0; right: 0; width: 240px; height: 240px; background: var(--orange); opacity: 0.07; border-radius: 50%; transform: translate(70px,-70px); pointer-events: none; }
-.client-card-accent2 { position: absolute; bottom: 0; left: 0; width: 160px; height: 160px; background: var(--blue); opacity: 0.05; border-radius: 50%; transform: translate(-50px, 50px); pointer-events: none; }
-.client-card-num { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.25); margin-bottom: 10px; letter-spacing: 0.1em; }
-.tag-type { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-family: 'DM Mono', monospace; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); margin-bottom: 12px; }
-.client-card-name { font-size: 42px; font-weight: 600; color: white; letter-spacing: -0.03em; margin-bottom: 18px; line-height: 1; }
-.client-score-row { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-.client-score-chip { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-family: 'DM Mono', monospace; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.55); }
-.client-score-chip span { color: white; font-weight: 600; }
-.client-total { font-family: 'DM Mono', monospace; font-size: 52px; font-weight: 700; color: var(--orange); line-height: 1; }
-.client-total-label { font-size: 11px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 5px; }
-.client-body { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; }
-.client-rec { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.65; max-width: 500px; }
-.copy-card-btn { position: absolute; top: 18px; right: 18px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; }
-.copy-card-btn:hover { background: rgba(255,255,255,0.12); color: white; }
-
-.summary-box { background: var(--white); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 22px; margin-top: 20px; }
-.summary-box h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid); font-family: 'DM Mono', monospace; margin-bottom: 10px; }
-.summary-box p { font-size: 13px; color: var(--dark); line-height: 1.7; }
-.troubleshoot-box { border-left: 2px solid var(--orange); padding-left: 16px; margin-top: 16px; }
-
-.client-view-actions { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-.client-view-actions span { font-size: 13px; color: var(--mid); }
-
-.error-msg { color: #c62828; font-size: 13px; margin-top: 10px; background: #fce4ec; border-radius: 8px; padding: 12px 16px; }
-.name-count-info { font-size: 12px; color: var(--mid); margin-top: 8px; font-family: 'DM Mono', monospace; }
-
-.empty-state { text-align: center; padding: 48px 20px; color: var(--mid); font-size: 14px; line-height: 1.6; }
-.forward-info { font-size: 13px; color: var(--mid); }
-
-.field-hint { font-size: 12px; color: var(--mid); margin-top: 6px; line-height: 1.5; }
-
-.distance-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 6px; }
-.distance-option { border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; background: var(--white); }
-.distance-option:hover { border-color: var(--orange); }
-.distance-option.selected { border-color: var(--orange); background: #fff5f2; }
-.distance-option-label { font-size: 12px; font-weight: 500; color: var(--dark); margin-bottom: 4px; }
-.distance-option-desc { font-size: 11px; color: var(--mid); line-height: 1.4; }
-.distance-option.selected .distance-option-label { color: var(--orange); }
-
-.tooltip-wrap { position: relative; display: inline; }
-.tooltip-word { border-bottom: 1px dashed var(--mid); cursor: help; color: inherit; }
-.tooltip-box {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--dark);
-  color: white;
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 8px 12px;
-  border-radius: 6px;
-  width: 220px;
-  z-index: 200;
-  pointer-events: none;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-}
-.tooltip-box::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--dark);
-}
-.tooltip-wrap:hover .tooltip-box { display: block; }
-
-@media (max-width: 720px) {
-  .grid-2, .grid-3, .positives-neg { grid-template-columns: 1fr; }
-  .phonetic-grid { grid-template-columns: repeat(2, 1fr); }
-  .client-body { grid-template-columns: 1fr; }
-  .main { padding: 16px; }
-  .header { padding: 14px 16px; }
-  .client-card { padding: 24px; }
-  .client-card-name { font-size: 32px; }
-  .detail-name { font-size: 26px; }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--orange:#FF6540;--blue:#5460E8;--dark:#0f0f0f;--mid:#6b6b6b;--light:#f5f4f0;--border:rgba(0,0,0,0.09);--white:#ffffff;}
+body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;}
+.header{background:var(--dark);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;flex-shrink:0;}
+.header svg{height:20px;width:auto;}
+.header-right{display:flex;align-items:center;gap:14px;}
+.header-tag{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;}
+.btn-projects{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border-radius:6px;padding:6px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;}
+.btn-projects:hover{background:rgba(255,255,255,0.14);}
+.projects-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);display:none;}
+.projects-dot.on{display:block;}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.2);z-index:140;display:none;}
+.sidebar-overlay.show{display:block;}
+.sidebar{width:260px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:52px;left:0;bottom:0;z-index:150;transform:translateX(-100%);transition:transform 0.25s ease;}
+.sidebar.open{transform:translateX(0);}
+.sidebar-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sidebar-title{font-size:12px;font-weight:500;}
+.sidebar-close{background:none;border:none;color:var(--mid);cursor:pointer;font-size:20px;line-height:1;}
+.sidebar-list{flex:1;overflow-y:auto;padding:8px;}
+.sidebar-empty{padding:24px 14px;font-size:13px;color:var(--mid);text-align:center;line-height:1.6;}
+.proj-item{padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:3px;transition:background 0.1s;border:1px solid transparent;position:relative;}
+.proj-item:hover{background:var(--light);}
+.proj-item.active{background:#fff5f2;border-color:rgba(255,101,64,0.2);}
+.proj-item-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:20px;}
+.proj-item-meta{font-size:11px;color:var(--mid);font-family:'DM Mono',monospace;margin-top:2px;}
+.proj-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--mid);cursor:pointer;font-size:15px;opacity:0;}
+.proj-item:hover .proj-del{opacity:1;}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);}
+.app-body{display:flex;flex:1;}
+.main{flex:1;padding:32px;max-width:1100px;margin:0 auto;width:100%;}
+.section-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.page-title{font-size:24px;font-weight:600;color:var(--dark);letter-spacing:-0.02em;margin-bottom:28px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:18px;}
+.card-title{font-size:13px;font-weight:500;margin-bottom:18px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.field-group{margin-bottom:16px;}
+label{display:block;font-size:12px;font-weight:500;color:var(--mid);margin-bottom:5px;letter-spacing:0.03em;}
+input,select,textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:14px;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:9px 12px;background:var(--white);color:var(--dark);outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b6b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);}
+textarea{resize:vertical;line-height:1.55;}
+.ta-concept{min-height:82px;}
+.ta-names{min-height:130px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.9;}
+.name-count{font-size:12px;color:var(--mid);font-family:'DM Mono',monospace;margin-top:5px;}
+.error-msg{color:#c62828;font-size:13px;margin-top:8px;background:#fce4ec;border-radius:6px;padding:10px 14px;}
+.dist-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
+.dist-opt{border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:11px 13px;cursor:pointer;transition:all 0.15s;background:var(--white);}
+.dist-opt:hover{border-color:var(--orange);}
+.dist-opt.sel{border-color:var(--orange);background:#fff5f2;}
+.dist-opt-label{font-size:12px;font-weight:500;margin-bottom:3px;}
+.dist-opt.sel .dist-opt-label{color:var(--orange);}
+.dist-opt-desc{font-size:11px;color:var(--mid);line-height:1.4;}
+.btn-primary{display:block;width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:13px 28px;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:active{transform:scale(0.99);}
+.btn-secondary{background:var(--dark);color:white;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity 0.15s;}
+.btn-secondary:hover{opacity:0.8;}
+.btn-outline{background:transparent;color:var(--dark);border:1px solid rgba(0,0,0,0.14);border-radius:8px;padding:9px 18px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.15s;}
+.btn-outline:hover{background:var(--light);}
+.btn-ghost{background:none;border:none;color:var(--mid);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;padding:6px 10px;border-radius:6px;transition:background 0.15s;}
+.btn-ghost:hover{background:var(--light);color:var(--dark);}
+.loading-state{text-align:center;padding:80px 20px;}
+.spinner{width:34px;height:34px;border:2px solid rgba(0,0,0,0.08);border-top-color:var(--orange);border-radius:50%;animation:spin 0.75s linear infinite;margin:0 auto 18px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state p{color:var(--mid);font-size:14px;margin-bottom:4px;}
+.loading-name{font-weight:500;color:var(--dark);font-family:'DM Mono',monospace;font-size:13px;}
+.progress-bar{height:3px;background:rgba(0,0,0,0.07);border-radius:2px;margin:16px auto 0;max-width:300px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--orange);border-radius:2px;transition:width 0.4s ease;}
+.results-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+.results-title{font-size:22px;font-weight:600;letter-spacing:-0.02em;}
+.results-sub{font-size:13px;color:var(--mid);margin-top:3px;}
+.notes-section{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px;}
+.notes-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;color:var(--mid);margin-bottom:8px;}
+.notes-ta{border:none;background:transparent;resize:none;width:100%;font-size:13px;color:var(--dark);font-family:'DM Sans',sans-serif;line-height:1.6;outline:none;min-height:52px;}
+.notes-ta::placeholder{color:rgba(0,0,0,0.22);}
+.view-tabs{display:flex;gap:3px;background:rgba(0,0,0,0.06);border-radius:8px;padding:3px;margin-bottom:18px;width:fit-content;}
+.tab-btn{padding:7px 16px;font-size:13px;font-family:'DM Sans',sans-serif;border:none;background:transparent;color:var(--mid);border-radius:6px;cursor:pointer;font-weight:500;transition:all 0.15s;}
+.tab-btn.active{background:var(--white);color:var(--dark);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.table-info{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mid);flex-wrap:wrap;gap:8px;}
+.table-info-r{color:var(--orange);font-weight:500;}
+.score-table{width:100%;border-collapse:collapse;}
+.score-table th{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;white-space:nowrap;}
+.score-table td{padding:12px 14px;font-size:14px;border-bottom:1px solid rgba(0,0,0,0.05);vertical-align:middle;}
+.score-table tbody tr:last-child td{border-bottom:none;}
+.score-table tbody tr{cursor:pointer;transition:background 0.1s;}
+.score-table tbody tr:hover td{background:#fafaf8;}
+.score-table tbody tr.sel td{background:#fff5f2;}
+.name-cell{font-weight:500;}
+.sp{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500;font-family:'DM Mono',monospace;}
+.sh{background:#e8f5e9;color:#2e7d32;}
+.sm{background:#fff8e1;color:#e65100;}
+.sl{background:#fce4ec;color:#c62828;}
+.total-score{font-size:15px;font-weight:600;font-family:'DM Mono',monospace;}
+.rank-b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.06);font-size:11px;font-weight:500;color:var(--mid);font-family:'DM Mono',monospace;}
+.rank-b.top{background:var(--orange);color:white;}
+.add-btn{padding:4px 10px;font-size:12px;font-family:'DM Sans',sans-serif;border-radius:6px;cursor:pointer;font-weight:500;transition:all 0.15s;border:1px solid rgba(0,0,0,0.12);background:transparent;color:var(--mid);}
+.add-btn.added{background:var(--orange);color:white;border-color:var(--orange);}
+.cmp-btn{padding:4px 10px;font-size:12px;font-family:'DM Sans',sans-serif;border-radius:6px;cursor:pointer;font-weight:500;transition:all 0.15s;border:1px solid rgba(0,0,0,0.12);background:transparent;color:var(--mid);}
+.cmp-btn.on{background:var(--blue);color:white;border-color:var(--blue);}
+.detail-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:26px;margin-bottom:16px;}
+.detail-name{font-size:30px;font-weight:600;letter-spacing:-0.03em;}
+.detail-type{font-size:13px;color:var(--mid);margin-top:3px;}
+.score-cards{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap;}
+.sc{background:var(--light);border-radius:10px;padding:13px 16px;min-width:100px;}
+.sc-label{font-size:10px;color:var(--mid);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;}
+.sc-val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;margin-top:4px;line-height:1;}
+.sc-max{font-size:12px;color:var(--mid);font-weight:400;}
+.sc.total{background:var(--dark);}
+.sc.total .sc-label{color:rgba(255,255,255,0.4);}
+.sc.total .sc-val{color:var(--orange);}
+.sc.total .sc-max{color:rgba(255,255,255,0.3);}
+.sc.editable{cursor:pointer;position:relative;border:1px dashed transparent;transition:border-color 0.15s;}
+.sc.editable:hover{border-color:var(--orange);}
+.sc.editable::after{content:'✎ edit';font-size:9px;color:var(--mid);position:absolute;top:8px;right:8px;font-family:'DM Mono',monospace;opacity:0;transition:opacity 0.15s;}
+.sc.editable:hover::after{opacity:1;}
+.edit-input{width:50px;font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--dark);border:none;background:transparent;outline:none;padding:0;}
+.ph-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.ph-item{background:var(--light);border-radius:8px;padding:10px 13px;}
+.ph-label{font-size:10px;color:var(--mid);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;margin-bottom:3px;}
+.ph-val{font-size:14px;font-weight:500;font-family:'DM Mono',monospace;}
+.pn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.pos-box{background:#f0faf4;border-radius:10px;padding:14px 16px;}
+.neg-box{background:#fff5f5;border-radius:10px;padding:14px 16px;}
+.box-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;margin-bottom:8px;font-weight:500;}
+.pos-box .box-lbl{color:#2e7d32;}
+.neg-box .box-lbl{color:#c62828;}
+.bl{list-style:none;}
+.bl li{font-size:13px;color:var(--dark);padding:3px 0 3px 16px;line-height:1.55;position:relative;}
+.bl li::before{content:'—';position:absolute;left:0;color:var(--mid);}
+.rec-box{background:var(--dark);border-radius:10px;padding:18px 20px;}
+.rec-box .box-lbl{color:rgba(255,255,255,0.35);}
+.rec-box p{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.7;}
+.tw{position:relative;display:inline;}
+.tw-word{border-bottom:1px dashed rgba(0,0,0,0.3);cursor:help;}
+.tw-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--dark);color:white;font-size:12px;line-height:1.5;padding:8px 12px;border-radius:6px;width:220px;z-index:300;pointer-events:none;font-family:'DM Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;}
+.tw-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--dark);}
+.tw:hover .tw-tip{display:block;}
+.summary-box{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.summary-box h4{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;color:var(--mid);margin-bottom:10px;}
+.summary-box p{font-size:13px;line-height:1.7;}
+.trbl{border-left:3px solid var(--orange);padding-left:16px;margin-top:14px;}
+.actions-bar{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+.client-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.client-header-info{font-size:13px;color:var(--mid);}
+.cc{background:var(--dark);border-radius:16px;padding:32px;margin-bottom:16px;position:relative;overflow:hidden;}
+.cc-glow{position:absolute;top:-80px;right:-80px;width:240px;height:240px;background:var(--orange);opacity:0.07;border-radius:50%;pointer-events:none;}
+.cc-glow2{position:absolute;bottom:-60px;left:-60px;width:170px;height:170px;background:var(--blue);opacity:0.05;border-radius:50%;pointer-events:none;}
+.cc-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.22);letter-spacing:0.1em;margin-bottom:8px;}
+.cc-tag{display:inline-block;padding:4px 10px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);margin-bottom:12px;}
+.cc-name{font-size:40px;font-weight:600;color:white;letter-spacing:-0.03em;line-height:1;margin-bottom:18px;}
+.cc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.cc-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);}
+.cc-chip strong{color:white;}
+.cc-body{display:grid;grid-template-columns:1fr auto;gap:26px;align-items:end;}
+.cc-rec{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.7;max-width:500px;}
+.cc-meta{font-size:11px;color:rgba(255,255,255,0.2);font-family:'DM Mono',monospace;margin-top:12px;}
+.cc-tot{font-family:'DM Mono',monospace;font-size:50px;font-weight:700;color:var(--orange);line-height:1;}
+.cc-tot-lbl{font-size:11px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-family:'DM Mono',monospace;text-align:right;}
+.copy-card-btn{position:absolute;top:18px;right:18px;padding:6px 12px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background 0.15s;}
+.copy-card-btn:hover{background:rgba(255,255,255,0.13);color:white;}
+.empty-cl{text-align:center;padding:60px 20px;color:var(--mid);font-size:14px;line-height:1.6;}
+.cmp-grid{display:grid;gap:14px;}
+.cmp-grid.c2{grid-template-columns:1fr 1fr;}
+.cmp-grid.c3{grid-template-columns:1fr 1fr 1fr;}
+.cmp-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.cmp-name{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin-bottom:3px;}
+.cmp-type{font-size:12px;color:var(--mid);margin-bottom:14px;}
+.cmp-row{padding:8px 0;border-bottom:1px solid var(--border);}
+.cmp-row:last-of-type{border-bottom:none;}
+.cmp-row-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;}
+.cmp-row-lbl{color:var(--mid);}
+.cmp-row-val{font-weight:500;font-family:'DM Mono',monospace;}
+.cmp-bar{height:4px;background:var(--light);border-radius:2px;overflow:hidden;}
+.cmp-bar-fill{height:100%;border-radius:2px;}
+.cmp-tot{font-size:28px;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;margin:14px 0 4px;}
+.cmp-rec{font-size:12px;color:var(--mid);line-height:1.6;margin-top:10px;font-style:italic;}
+.cmp-hint{font-size:12px;color:var(--mid);background:var(--light);border-radius:8px;padding:10px 14px;margin-bottom:14px;}
+.alt-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px;}
+.alt-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.alt-title{font-size:13px;font-weight:500;}
+.alt-loading{text-align:center;padding:28px;color:var(--mid);font-size:13px;}
+.alt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;}
+.alt-card{background:var(--light);border-radius:8px;padding:13px 15px;border:1px solid transparent;transition:border-color 0.15s;}
+.alt-card:hover{border-color:var(--orange);}
+.alt-name{font-size:16px;font-weight:600;margin-bottom:5px;}
+.alt-score{font-size:12px;font-family:'DM Mono',monospace;color:var(--orange);margin-bottom:4px;}
+.alt-type{font-size:11px;color:var(--mid);margin-bottom:5px;}
+.alt-rat{font-size:12px;color:var(--mid);line-height:1.5;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;padding:11px 18px;border-radius:8px;font-size:13px;opacity:0;transform:translateY(6px);transition:all 0.2s;z-index:999;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+@media(max-width:760px){.main{padding:16px;}.grid-2,.pn-grid,.cmp-grid.c2,.cmp-grid.c3{grid-template-columns:1fr;}.ph-grid{grid-template-columns:repeat(2,1fr);}.cc-body{grid-template-columns:1fr;}.cc-name{font-size:28px;}.dist-opts{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
+<div class="sidebar-overlay" id="sov" onclick="closeSB()"></div>
+<header class="header">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 293.04 36.65"><path fill="#fff" d="M148.41,32.73c0-1.98,1.54-3.52,3.52-3.52s3.52,1.54,3.52,3.52-1.54,3.57-3.52,3.57-3.52-1.59-3.52-3.57Z"/><path fill="#fff" d="M161.69,34.22l-1.14-9.47h2.28c.65,4.46,3.62,9.07,9.32,9.07,3.77,0,6.5-2.13,6.5-5.85,0-3.12-2.23-4.56-5.46-5.8l-4.66-1.79c-4.71-1.78-7.44-4.76-7.44-9.37,0-6.1,5.36-10.12,12.05-10.12,4.12,0,7.14.89,9.13,1.84v8.53h-2.08c-.15-3.77-2.43-7.79-7.74-7.79-3.97,0-7.04,2.38-7.04,5.8,0,2.73,1.69,4.37,4.91,5.6l4.66,1.79c5.5,2.13,8.18,4.81,8.18,9.57,0,6.1-5.11,10.41-11.75,10.41-4.31,0-7.54-1.09-9.72-2.43Z"/><path fill="#fff" d="M188.76,31.05c0-.79.15-3.27.15-4.46l.4-10.71h-5.06v-1.69c2.53-1.84,5.31-4.22,7.29-6.55h1.54v4.76h6.45v3.47h-6.45v13.89c0,1.98.89,2.98,2.68,2.98,1.54,0,2.33-.99,2.88-2.03h1.14c-.25,2.23-2.18,5.85-5.75,5.85-2.88,0-5.26-1.44-5.26-5.5Z"/><path fill="#fff" d="M219.22,32.19h-.3c-1.19,2.13-3.67,4.12-6.65,4.12-3.92,0-6.79-2.78-6.79-7.19v-12.15c0-2.18-.94-2.78-2.48-2.83l-1.29-.05v-1.69h2.33c2.33,0,4.46-.05,6.05-.2-.05.64-.05,1.88-.05,4.81v10.96c0,3.52,1.89,4.76,4.32,4.76,1.59,0,3.62-.94,4.86-2.48v-13.39c0-2.13-1.09-2.68-2.48-2.73l-1.54-.05v-1.69h3.08c1.54,0,3.92-.05,5.5-.2v18.6c0,2.33,1.29,2.88,2.73,2.88h.79v1.64l-8.08,1.04v-4.17Z"/><path fill="#fff" d="M245.31,32.19h-.3c-1.24,2.73-3.32,4.12-6.25,4.12-5.9,0-10.07-5.36-10.07-11.85,0-8.78,6.3-12.7,11.46-12.7,2.13,0,4.17.5,5.16,1.44v-7.14c0-1.98-.79-2.73-2.53-2.73h-2.68v-1.44c2.38-.4,6.99-1.49,8.48-1.89h1.29v30.8c0,2.33,1.29,2.88,2.73,2.88h.79v1.64l-8.08,1.04v-4.17ZM245.31,30.15v-11.06c0-3.17-1.84-5.06-5.16-5.06s-7.09,2.73-7.09,8.93c0,4.86,2.73,9.08,7.54,9.08,2.13,0,3.57-.55,4.71-1.89Z"/><path fill="#fff" d="M259.75,31.2v-12.99c0-2.13-.84-2.93-2.83-2.93h-1.49v-1.44c1.74-.4,6-1.34,7.59-1.89h1.29v19.24c0,2.13.74,3.07,3.32,3.07h.59v1.64h-12.55v-1.64h.64c2.63,0,3.42-.94,3.42-3.07ZM257.82,3.82c0-1.93,1.59-3.52,3.52-3.52s3.47,1.59,3.47,3.52-1.54,3.47-3.47,3.47-3.52-1.54-3.52-3.47Z"/><path fill="#fff" d="M269.38,24.15c0-7.14,5.46-12.45,11.8-12.45s11.85,5.31,11.85,12.45-5.5,12.5-11.85,12.5-11.8-5.31-11.8-12.5ZM287.73,24.15c0-6-2.43-9.97-6.55-9.97s-6.5,4.17-6.5,9.97,2.48,9.97,6.5,9.97,6.55-4.17,6.55-9.97Z"/><path fill="#fff" d="M0,35.91V1.46h12.89c6.29,0,11.75,2.48,15.17,7.78,1.69,2.68,2.53,5.85,2.53,9.47,0,5.35-1.74,9.57-5.16,12.59-3.47,3.07-7.63,4.61-12.54,4.61H0ZM5.5,30.95h6.59c3.62,0,6.64-.99,9.07-3.02,2.43-1.98,3.62-5.06,3.62-9.27,0-8.97-6.1-12.24-12.69-12.24h-6.59v24.54Z"/><path fill="#fff" d="M57.2,29.71c-2.28,4.51-6.05,6.79-11.25,6.79-3.67,0-6.69-1.19-9.07-3.52-2.38-2.33-3.57-5.35-3.57-9.12s1.19-6.74,3.52-9.07c2.33-2.33,5.25-3.52,8.77-3.52s6.29,1.09,8.33,3.32c2.03,2.23,3.02,5.2,3.02,8.92,0,.84,0,1.34-.05,1.59h-17.94c.35,4.36,2.92,7.04,7.04,7.04,3.02,0,5.35-1.59,6.99-4.76l4.21,2.33ZM39.01,21.43h12.44c-.35-3.82-2.38-5.95-6-5.95s-6,2.23-6.44,5.95Z"/><path fill="#fff" d="M60.95,35.91V11.87h5.2v3.17c1.69-2.53,4.21-3.77,7.53-3.77,5.9,0,9.22,3.57,9.22,9.66v14.97h-5.35v-14.23c0-3.92-1.74-5.9-5.25-5.9s-6,2.23-6,6.05v14.08h-5.35Z"/><path fill="#fff" d="M87.88,35.91V11.87h5.2v3.17c1.69-2.53,4.21-3.77,7.53-3.77,5.9,0,9.22,3.57,9.22,9.66v14.97h-5.35v-14.23c0-3.92-1.74-5.9-5.25-5.9s-6,2.23-6,6.05v14.08h-5.35Z"/><path fill="#fff" d="M114.03,4.63c0-1.83,1.39-3.22,3.32-3.22,1.83,0,3.32,1.39,3.32,3.22s-1.49,3.17-3.32,3.17c-1.93,0-3.32-1.34-3.32-3.17ZM114.67,35.91V11.87h5.35v24.04h-5.35Z"/><path fill="#fff" d="M126.59,34.27c-2.13-1.44-3.17-3.52-3.22-6.25l5.06-.74c.3,3.42,2.43,5.16,6.39,5.16,2.78,0,4.66-1.14,4.66-3.27,0-1.73-.99-2.38-3.62-2.92l-2.78-.45c-2.58-.45-4.11-.94-5.9-2.03-1.78-1.09-2.68-2.88-2.68-5.45,0-4.31,3.87-7.04,10.06-7.04s9.47,2.82,10.21,6.99l-4.81,1.19c-.64-2.73-2.48-4.11-5.5-4.11s-4.61,1.09-4.61,2.93,1.04,2.53,4.01,3.07l2.78.5c5.16.84,8.28,2.58,8.28,7.19s-4.16,7.48-10.26,7.48c-3.27,0-5.95-.74-8.08-2.23Z"/></svg>
+  <div class="header-right">
+    <span class="header-tag">Naming Evaluator — Núria</span>
+    <button class="btn-projects" onclick="toggleSB()"><span class="projects-dot" id="pdot"></span>Projects</button>
+  </div>
+</header>
+<div class="sidebar" id="sb">
+  <div class="sidebar-header"><span class="sidebar-title">Saved projects</span><button class="sidebar-close" onclick="closeSB()">×</button></div>
+  <div class="sidebar-list" id="sblist"><div class="sidebar-empty">No saved projects yet.</div></div>
+  <div class="sidebar-footer"><button class="btn-outline" style="width:100%;font-size:12px;" onclick="clearAll()">Clear all projects</button></div>
+</div>
+<div class="app-body">
+<main class="main">
 
-<div class="header">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 293.04 36.65">
-    <path fill="#fff" d="M148.41,32.73c0-1.98,1.54-3.52,3.52-3.52s3.52,1.54,3.52,3.52-1.54,3.57-3.52,3.57-3.52-1.59-3.52-3.57Z"/>
-    <path fill="#fff" d="M161.69,34.22l-1.14-9.47h2.28c.65,4.46,3.62,9.07,9.32,9.07,3.77,0,6.5-2.13,6.5-5.85,0-3.12-2.23-4.56-5.46-5.8l-4.66-1.79c-4.71-1.78-7.44-4.76-7.44-9.37,0-6.1,5.36-10.12,12.05-10.12,4.12,0,7.14.89,9.13,1.84v8.53h-2.08c-.15-3.77-2.43-7.79-7.74-7.79-3.97,0-7.04,2.38-7.04,5.8,0,2.73,1.69,4.37,4.91,5.6l4.66,1.79c5.5,2.13,8.18,4.81,8.18,9.57,0,6.1-5.11,10.41-11.75,10.41-4.31,0-7.54-1.09-9.72-2.43Z"/>
-    <path fill="#fff" d="M188.76,31.05c0-.79.15-3.27.15-4.46l.4-10.71h-5.06v-1.69c2.53-1.84,5.31-4.22,7.29-6.55h1.54v4.76h6.45v3.47h-6.45v13.89c0,1.98.89,2.98,2.68,2.98,1.54,0,2.33-.99,2.88-2.03h1.14c-.25,2.23-2.18,5.85-5.75,5.85-2.88,0-5.26-1.44-5.26-5.5Z"/>
-    <path fill="#fff" d="M219.22,32.19h-.3c-1.19,2.13-3.67,4.12-6.65,4.12-3.92,0-6.79-2.78-6.79-7.19v-12.15c0-2.18-.94-2.78-2.48-2.83l-1.29-.05v-1.69h2.33c2.33,0,4.46-.05,6.05-.2-.05.64-.05,1.88-.05,4.81v10.96c0,3.52,1.89,4.76,4.32,4.76,1.59,0,3.62-.94,4.86-2.48v-13.39c0-2.13-1.09-2.68-2.48-2.73l-1.54-.05v-1.69h3.08c1.54,0,3.92-.05,5.5-.2v18.6c0,2.33,1.29,2.88,2.73,2.88h.79v1.64l-8.08,1.04v-4.17Z"/>
-    <path fill="#fff" d="M245.31,32.19h-.3c-1.24,2.73-3.32,4.12-6.25,4.12-5.9,0-10.07-5.36-10.07-11.85,0-8.78,6.3-12.7,11.46-12.7,2.13,0,4.17.5,5.16,1.44v-7.14c0-1.98-.79-2.73-2.53-2.73h-2.68v-1.44c2.38-.4,6.99-1.49,8.48-1.89h1.29v30.8c0,2.33,1.29,2.88,2.73,2.88h.79v1.64l-8.08,1.04v-4.17ZM245.31,30.15v-11.06c0-3.17-1.84-5.06-5.16-5.06s-7.09,2.73-7.09,8.93c0,4.86,2.73,9.08,7.54,9.08,2.13,0,3.57-.55,4.71-1.89Z"/>
-    <path fill="#fff" d="M259.75,31.2v-12.99c0-2.13-.84-2.93-2.83-2.93h-1.49v-1.44c1.74-.4,6-1.34,7.59-1.89h1.29v19.24c0,2.13.74,3.07,3.32,3.07h.59v1.64h-12.55v-1.64h.64c2.63,0,3.42-.94,3.42-3.07ZM257.82,3.82c0-1.93,1.59-3.52,3.52-3.52s3.47,1.59,3.47,3.52-1.54,3.47-3.47,3.47-3.52-1.54-3.52-3.47Z"/>
-    <path fill="#fff" d="M269.38,24.15c0-7.14,5.46-12.45,11.8-12.45s11.85,5.31,11.85,12.45-5.5,12.5-11.85,12.5-11.8-5.31-11.8-12.5ZM287.73,24.15c0-6-2.43-9.97-6.55-9.97s-6.5,4.17-6.5,9.97,2.48,9.97,6.5,9.97,6.55-4.17,6.55-9.97Z"/>
-    <path fill="#fff" d="M0,35.91V1.46h12.89c6.29,0,11.75,2.48,15.17,7.78,1.69,2.68,2.53,5.85,2.53,9.47,0,5.35-1.74,9.57-5.16,12.59-3.47,3.07-7.63,4.61-12.54,4.61H0ZM5.5,30.95h6.59c3.62,0,6.64-.99,9.07-3.02,2.43-1.98,3.62-5.06,3.62-9.27,0-8.97-6.1-12.24-12.69-12.24h-6.59v24.54Z"/>
-    <path fill="#fff" d="M57.2,29.71c-2.28,4.51-6.05,6.79-11.25,6.79-3.67,0-6.69-1.19-9.07-3.52-2.38-2.33-3.57-5.35-3.57-9.12s1.19-6.74,3.52-9.07c2.33-2.33,5.25-3.52,8.77-3.52s6.29,1.09,8.33,3.32c2.03,2.23,3.02,5.2,3.02,8.92,0,.84,0,1.34-.05,1.59h-17.94c.35,4.36,2.92,7.04,7.04,7.04,3.02,0,5.35-1.59,6.99-4.76l4.21,2.33ZM39.01,21.43h12.44c-.35-3.82-2.38-5.95-6-5.95s-6,2.23-6.44,5.95Z"/>
-    <path fill="#fff" d="M60.95,35.91V11.87h5.2v3.17c1.69-2.53,4.21-3.77,7.53-3.77,5.9,0,9.22,3.57,9.22,9.66v14.97h-5.35v-14.23c0-3.92-1.74-5.9-5.25-5.9s-6,2.23-6,6.05v14.08h-5.35Z"/>
-    <path fill="#fff" d="M87.88,35.91V11.87h5.2v3.17c1.69-2.53,4.21-3.77,7.53-3.77,5.9,0,9.22,3.57,9.22,9.66v14.97h-5.35v-14.23c0-3.92-1.74-5.9-5.25-5.9s-6,2.23-6,6.05v14.08h-5.35Z"/>
-    <path fill="#fff" d="M114.03,4.63c0-1.83,1.39-3.22,3.32-3.22,1.83,0,3.32,1.39,3.32,3.22s-1.49,3.17-3.32,3.17c-1.93,0-3.32-1.34-3.32-3.17ZM114.67,35.91V11.87h5.35v24.04h-5.35Z"/>
-    <path fill="#fff" d="M126.59,34.27c-2.13-1.44-3.17-3.52-3.22-6.25l5.06-.74c.3,3.42,2.43,5.16,6.39,5.16,2.78,0,4.66-1.14,4.66-3.27,0-1.73-.99-2.38-3.62-2.92l-2.78-.45c-2.58-.45-4.11-.94-5.9-2.03-1.78-1.09-2.68-2.88-2.68-5.45,0-4.31,3.87-7.04,10.06-7.04s9.47,2.82,10.21,6.99l-4.81,1.19c-.64-2.73-2.48-4.11-5.5-4.11s-4.61,1.09-4.61,2.93,1.04,2.53,4.01,3.07l2.78.5c5.16.84,8.28,2.58,8.28,7.19s-4.16,7.48-10.26,7.48c-3.27,0-5.95-.74-8.08-2.23Z"/>
-  </svg>
-  <span class="header-tag">Naming Evaluator — Núria</span>
+<div id="fv">
+  <div class="section-label">New evaluation</div>
+  <div class="page-title">Brand naming analysis</div>
+  <div class="card">
+    <div class="card-title">Project context</div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="field-group" style="margin-bottom:0;"><label>Project name</label><input type="text" id="pname" placeholder="e.g. Santa Marta Marbella"></div>
+      <div class="field-group" style="margin-bottom:0;"><label>Target market / language</label>
+        <select id="tlang">
+          <option value="Spanish (Spain)">Spanish — Spain</option>
+          <option value="Spanish (Latin America)">Spanish — Latin America</option>
+          <option value="Bilingual Spanish / English">Bilingual — Spanish / English</option>
+          <option value="English (International)">English — International</option>
+          <option value="English (UK)">English — UK</option>
+          <option value="English (US)">English — US</option>
+          <option value="French">French</option><option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option><option value="German">German</option>
+          <option value="Arabic">Arabic</option><option value="Mandarin Chinese">Mandarin Chinese</option>
+          <option value="Japanese">Japanese</option><option value="Dutch">Dutch</option>
+          <option value="Swedish">Swedish</option>
+          <option value="Other — specify in brief">Other — specify in brief</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group"><label>Brand concept — positioning statement</label><textarea class="ta-concept" id="bconcept" placeholder="Describe the brand in 1–3 sentences. What does it stand for? Who is it for? What feeling should it evoke?"></textarea></div>
+    <div class="field-group" style="margin-bottom:0;">
+      <label>Naming distance goal</label>
+      <input type="hidden" id="ndist" value="moderate — related but not literal">
+      <div class="dist-opts">
+        <div class="dist-opt" onclick="selDist(this,'close — reinforce the positioning directly')"><div class="dist-opt-label">Close</div><div class="dist-opt-desc">Name directly reflects what the brand does or stands for. Good for clarity and category recognition.</div></div>
+        <div class="dist-opt sel" onclick="selDist(this,'moderate — related but not literal')"><div class="dist-opt-label">Moderate</div><div class="dist-opt-desc">Name suggests the brand without being obvious. Balances meaning with memorability.</div></div>
+        <div class="dist-opt" onclick="selDist(this,'distant — evocative, stand-out, abstract')"><div class="dist-opt-label">Distant</div><div class="dist-opt-desc">Name is abstract or evocative — designed to stand out and be fully ownable.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Project details</div>
+    <div class="grid-2">
+      <div class="field-group" style="margin-bottom:0;"><label>Sector / category</label><input type="text" id="sector" placeholder="e.g. Hotel F&B, Restaurant, Retail brand"></div>
+      <div class="field-group" style="margin-bottom:0;"><label>Notes (optional)</label><input type="text" id="inotes" placeholder="e.g. Workshop output, client shortlist..."></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Candidate names</div>
+    <label>Enter names — one per line (up to 10)</label>
+    <textarea class="ta-names" id="ninput" placeholder="Marea&#10;Solana&#10;Bruma&#10;Levante&#10;Ardea"></textarea>
+    <div class="name-count" id="ncount">0 names entered</div>
+    <div id="err" class="error-msg" style="display:none;"></div>
+  </div>
+  <button class="btn-primary" onclick="runEval()">Run evaluation</button>
 </div>
 
-<div class="main">
-
-  <div id="form-view">
-    <div style="margin-bottom: 28px;">
-      <div class="section-label">New evaluation</div>
-      <div style="font-size: 24px; font-weight: 600; color: var(--dark); letter-spacing: -0.02em;">Brand naming analysis</div>
-    </div>
-
-    <div class="card">
-      <div class="section-label" style="margin-bottom: 18px;">Project context</div>
-      <div class="grid-2" style="margin-bottom: 18px;">
-        <div>
-          <label>Project name</label>
-          <input type="text" id="project-name" placeholder="e.g. Santa Marta Marbella">
-        </div>
-        <div>
-          <label>Target market / language</label>
-          <select id="target-lang">
-            <option value="Spanish (Spain)">Spanish — Spain</option>
-            <option value="Spanish (Latin America)">Spanish — Latin America</option>
-            <option value="English (UK)">English — UK</option>
-            <option value="English (US)">English — US</option>
-            <option value="English (International)">English — International</option>
-            <option value="Bilingual Spanish / English">Bilingual — Spanish / English</option>
-            <option value="French">French</option>
-            <option value="Italian">Italian</option>
-            <option value="Portuguese">Portuguese</option>
-            <option value="German">German</option>
-            <option value="Arabic">Arabic</option>
-            <option value="Mandarin Chinese">Mandarin Chinese</option>
-            <option value="Japanese">Japanese</option>
-            <option value="Dutch">Dutch</option>
-            <option value="Swedish">Swedish</option>
-            <option value="Other — specify in brief">Other — specify in brief</option>
-          </select>
-        </div>
-      </div>
-      <div style="margin-bottom: 18px;">
-        <label>Brand concept — positioning statement</label>
-        <textarea id="brand-concept" placeholder="Describe the brand in 1–3 sentences. What does it stand for? Who is it for? What feeling should it evoke?"></textarea>
-      </div>
-      <div style="margin-bottom:18px;">
-        <label>Naming distance goal</label>
-        <input type="hidden" id="naming-distance" value="moderate — related but not literal">
-        <div class="distance-options">
-          <div class="distance-option" onclick="selectDistance(this, 'close — reinforce the positioning directly')">
-            <div class="distance-option-label">Close</div>
-            <div class="distance-option-desc">Name directly reflects what the brand does or stands for. Good for clarity and category recognition.</div>
-          </div>
-          <div class="distance-option selected" onclick="selectDistance(this, 'moderate — related but not literal')">
-            <div class="distance-option-label">Moderate</div>
-            <div class="distance-option-desc">Name suggests the brand without being obvious. Balances meaning with memorability.</div>
-          </div>
-          <div class="distance-option" onclick="selectDistance(this, 'distant — evocative, stand-out, abstract')">
-            <div class="distance-option-label">Distant</div>
-            <div class="distance-option-desc">Name is abstract or evocative — designed to stand out and be fully ownable.</div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <label>Sector / category</label>
-        <input type="text" id="sector" placeholder="e.g. Hotel F&B, Restaurant, Retail brand">
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-label" style="margin-bottom: 16px;">Candidate names</div>
-      <label>Enter names — one per line (up to 10)</label>
-      <textarea class="names-input" id="names-input" placeholder="Marea&#10;Solana&#10;Bruma&#10;Levante&#10;Ardea"></textarea>
-      <div class="name-count-info" id="name-count">0 names entered</div>
-      <div id="input-error" class="error-msg" style="display:none;"></div>
-    </div>
-
-    <button class="btn-primary" id="run-btn" onclick="runEvaluation()">Run evaluation</button>
-  </div>
-
-  <div id="loading-view" style="display:none;">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Núria is evaluating your names</p>
-      <p class="loading-name" id="loading-name-label">Preparing analysis...</p>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:5%;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="results-view" style="display:none;">
-    <div class="results-header">
-      <div>
-        <div class="results-title" id="results-project-title">Results</div>
-        <div class="results-sub" id="results-sub"></div>
-      </div>
-      <button class="btn-outline" onclick="resetForm()">New evaluation</button>
-    </div>
-
-    <div class="view-tabs">
-      <button class="tab-btn active" id="tab-internal" onclick="switchTab('internal')">Internal analysis</button>
-      <button class="tab-btn" id="tab-client" onclick="switchTab('client')">Client view</button>
-    </div>
-
-    <div id="internal-panel">
-      <div class="card" style="padding:0; overflow:hidden;">
-        <div style="padding:14px 20px; border-bottom:1px solid rgba(0,0,0,0.07); display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:13px; color:var(--mid);">Click a name for full analysis. Use Add to build the client view.</div>
-          <div class="forward-info" id="forward-count-label">0 selected</div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="score-table">
-            <thead>
-              <tr>
-                <th style="width:44px;">#</th>
-                <th>Name</th>
-                <th>Pronunciation</th>
-                <th>Memorability</th>
-                <th>Distance</th>
-                <th>Total</th>
-                <th style="width:90px;">Client</th>
-              </tr>
-            </thead>
-            <tbody id="results-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="detail-panel-container"></div>
-      <div id="summary-panel"></div>
-
-      <div class="actions-bar">
-        <button class="btn-outline" onclick="copyInternalReport()">Copy full report</button>
-        <button class="btn-secondary" onclick="switchTab('client')">View client presentation</button>
-      </div>
-    </div>
-
-    <div id="client-panel" style="display:none;">
-      <div class="client-view-actions">
-        <span><strong id="client-count">0</strong> names selected</span>
-        <button class="btn-outline" onclick="copyClientReport()">Copy all to clipboard</button>
-      </div>
-      <div id="client-cards-container"></div>
-    </div>
-  </div>
-
+<div id="lv" style="display:none;">
+  <div class="loading-state"><div class="spinner"></div><p>Núria is evaluating your names</p><p class="loading-name" id="llbl">Preparing analysis...</p><div class="progress-bar"><div class="progress-fill" id="pfill" style="width:5%;"></div></div></div>
 </div>
 
+<div id="rv" style="display:none;">
+  <div class="results-header">
+    <div><div class="results-title" id="rtitle">Results</div><div class="results-sub" id="rsub"></div></div>
+    <button class="btn-outline" onclick="resetForm()">New evaluation</button>
+  </div>
+  <div class="notes-section"><div class="notes-label">Project notes</div><textarea class="notes-ta" id="pnotes" placeholder="Add context, client feedback, decisions made..." oninput="saveProj()"></textarea></div>
+  <div class="view-tabs">
+    <button class="tab-btn active" id="ti" onclick="sw('i')">Internal analysis</button>
+    <button class="tab-btn" id="tc" onclick="sw('c')">Client view</button>
+    <button class="tab-btn" id="tm" onclick="sw('m')">Compare</button>
+  </div>
+  <div id="ip">
+    <div class="table-wrap">
+      <div class="table-info"><span>Click a name to see full analysis</span><span class="table-info-r" id="scounts">0 for client · 0 for compare</span></div>
+      <div style="overflow-x:auto;"><table class="score-table"><thead><tr><th style="width:38px;">#</th><th>Name</th><th>Pronunciation</th><th>Memorability</th><th>Distance</th><th>Total</th><th>Client</th><th>Compare</th></tr></thead><tbody id="rtbody"></tbody></table></div>
+    </div>
+    <div id="dc"></div>
+    <div id="sc2"></div>
+    <div id="altc"></div>
+    <div class="actions-bar">
+      <button class="btn-ghost" onclick="suggestAlt()">Suggest alternatives</button>
+      <button class="btn-outline" onclick="copyInt()">Copy full report</button>
+      <button class="btn-secondary" onclick="sw('c')">View client presentation</button>
+    </div>
+  </div>
+  <div id="cp" style="display:none;">
+    <div class="client-header"><div class="client-header-info"><strong id="ccount">0</strong> names selected</div><button class="btn-outline" onclick="copyClient()">Copy all to clipboard</button></div>
+    <div id="ccards"></div>
+  </div>
+  <div id="mp" style="display:none;">
+    <div class="cmp-hint" id="cmphint">Select 2 or 3 names using the Compare column in the table above.</div>
+    <div id="cmpgrid"></div>
+  </div>
+</div>
+
+</main>
+</div>
 <script>
-const NAMING_DOC = `
-DENNIS NAMING SCORING SYSTEM — FULL METHODOLOGY
+const WU='https://dennis-naming-api.josh-64f.workers.dev';
+const ND=`DENNIS NAMING SCORING SYSTEM
 
 CRITERIA:
-1. Pronunciation (Sonority and Phonetics): Ease of articulation, acoustic properties, word-of-mouth viability.
-2. Memorability (Cognitive Retention and Structure): How effectively a name facilitates initial encoding in memory.
-3. Distance to Brand Concept (Coherence and Positioning): Whether the name acts as effective shorthand or disruptive trigger for the brand positioning.
+1. Pronunciation — ease of articulation, acoustic properties, word-of-mouth viability
+2. Memorability — how effectively a name facilitates initial encoding in memory
+3. Distance to Brand Concept — whether the name acts as shorthand or disruptive trigger for the positioning
 
-LINGUISTIC TECHNIQUES:
-- Phonetic Ambiguity: Occurs when one spoken sound maps to multiple spellings (e.g. S/Z, S/soft-C). Causes friction and recall issues.
-- Vowel Density: Count vowels (A,E,I,O,U,Y-as-vowel) divided by total letters. Above 0.4 = high affect, fluidity. Below 0.4 = low affect, disfluency risk.
-- Length: Short names 3 to 6 letters minimize cognitive load.
-- Initial Phonemes: Fricatives (/f/,/v/,/h/) and velars (/k/,/g/,/w/) = strong emotional triggers. Sibilants (s, soft-c) = serene but weaker impact.
-- Plosives (b,c,d,g,k,p,t): Harsher, firmer, more direct. Stronger recall.
-- Prosodic devices: Alliteration, assonance, consonance, rhythm improve recallability.
+VOWEL DENSITY: vowels (A,E,I,O,U,Y-as-vowel) / total letters. Above 0.4 = fluidity, warmth. Below 0.4 = disfluency risk.
+LENGTH: Optimal 3-6 letters. Shorter = lower cognitive load, higher recall.
+INITIAL PHONEMES: Fricatives (f,v,h) and velars (k,g,w) = strong emotional triggers. Sibilants (s,z,soft-c) = serene but weaker impact.
+PLOSIVES (b,p,t,d,k,g): Sharp, direct, enhance recall.
+PROSODIC DEVICES: Alliteration (same opening sound), Assonance (repeated vowels), Consonance (repeated consonants), Rhythm (syllable stress).
 
-NOMENCLATURE TAXONOMY (Lippincott):
-- Surname: Based on personal names. Neutral distance.
-- Descriptive: Identifies category/function directly. Close distance.
-- Invented: Synthetic words. Long distance.
-- Connotative: Suggests a quality or essence. Close distance.
-- Bridge: Combines existing words. Neutral distance.
-- Arbitrary: Real word in unrelated context. Long distance.
+NOMENCLATURE: Surname=neutral distance, Descriptive=close, Invented=long, Connotative=close, Bridge=neutral, Arbitrary=long.
 
-CONSOLIDATED SCORING RUBRIC:
-Score 5: Meets ALL criteria requirements.
-Score 4: Missing only ONE.
-Score 3: Missing TWO.
-Score 1: Missing THREE OR MORE.
+SCORING (5=all met, 4=one missing, 3=two missing, 1=three or more missing):
 
-PRONUNCIATION criteria (all required for score 5):
-1. Has phonetic symbolism aligned to brand strategy
-2. Does not have phonetic ambiguity
+PRONUNCIATION criteria (5 items):
+1. Phonetic symbolism aligned to brand strategy
+2. No phonetic ambiguity
 3. Starts with fricative or velar
-4. Does not have silent letters
-5. Vowel density is above 0.4
+4. No silent letters
+5. Vowel density above 0.4
 
-MEMORABILITY criteria (all required for score 5):
-1. Vowel density is above 0.4
+MEMORABILITY criteria (4 items):
+1. Vowel density above 0.4
 2. Starts with fricative or velar
-3. The name is considered short (3-6 letters ideally)
-4. Follows any phonetic mechanic rule (alliteration, assonance, consonance, rhythm)
+3. Short (3-6 letters ideally)
+4. Follows at least one prosodic device
 
-DISTANCE TO BRAND CONCEPT criteria (all required for score 5):
-1. Has appropriate distance per goal (short if reinforcing positioning, neutral if indifferent, long if needing to stand out)
-2. Utilizes phonetic symbolism perfectly aligned to brand strategy
-3. Follows any phonetic mechanic rule
+DISTANCE criteria (3 items):
+1. Correct distance for stated goal
+2. Phonetic symbolism aligned to brand strategy
+3. Follows at least one prosodic device
 
-TOTAL SCORE: Sum of three criteria scores. Maximum 15. Minimum 3.
-`;
+TOTAL = sum of three scores. Max 15.`;
 
-let evaluationData = null;
-let selectedForClient = new Set();
-
-document.getElementById('names-input').addEventListener('input', () => {
-  const n = getNames().length;
-  document.getElementById('name-count').textContent = n + ' name' + (n !== 1 ? 's' : '') + ' entered';
-});
-
-function getNames() {
-  return document.getElementById('names-input').value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-}
-
-function getScoreClass(s) { return s >= 4 ? 'score-high' : s === 3 ? 'score-mid' : 'score-low'; }
-
-function selectDistance(el, value) {
-  document.querySelectorAll('.distance-option').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('naming-distance').value = value;
-}
-
-const TOOLTIPS = {
-  'fricative': 'A sound made by pushing air through a narrow gap (f, v, h). Strong emotional trigger — makes names feel energetic and memorable.',
-  'velar': 'A sound made at the back of the mouth (k, g, w, q). Like fricatives, these create strong first impressions and aid recall.',
-  'sibilant': 'A hissing or flowing sound (s, z, soft-c). Evokes calm, serenity, and elegance — but can weaken distinctiveness.',
-  'plosive': 'A sharp burst of sound (b, p, t, d, k, g). Makes names feel direct, energetic, and easy to remember.',
-  'alliteration': 'Repetition of the same opening sound (e.g. Coca-Cola). Makes names feel smooth and easy to say.',
-  'assonance': 'Repetition of vowel sounds within a name (e.g. Ramada Inn). Adds warmth and a musical quality.',
-  'consonance': 'Repetition of consonant sounds with vowel changes in between (e.g. Hamburger Helper). Creates a distinctive rhythm.',
-  'prosodic': 'Relating to the rhythm and musicality of spoken words — things like stress, syllable patterns, and cadence.',
-  'phonetic symbolism': 'The idea that certain sounds carry inherent meaning or feeling — hard sounds feel strong, soft sounds feel gentle.',
-  'vowel density': 'The ratio of vowels to total letters. Above 0.4 creates fluidity and emotional warmth. Below 0.4 can feel harsh or hard to say.',
+const TIPS={
+  'fricative':'A sound made by pushing air through a narrow gap — like f, v, or h. These create a strong emotional first impression and boost memorability.',
+  'fricatives':'A sound made by pushing air through a narrow gap — like f, v, or h. These create a strong emotional first impression and boost memorability.',
+  'velar':'A sound formed at the back of the mouth — like k, g, or w. Velars feel direct and punchy, making names easier to recall.',
+  'velars':'A sound formed at the back of the mouth — like k, g, or w. Velars feel direct and punchy, making names easier to recall.',
+  'sibilant':'A hissing or flowing sound — like s, z, or soft-c. Evokes calm and elegance, but can weaken distinctiveness and cause spelling confusion.',
+  'sibilants':'A hissing or flowing sound — like s, z, or soft-c. Evokes calm and elegance, but can weaken distinctiveness and cause spelling confusion.',
+  'plosive':'A sharp burst of sound — like b, p, t, d, k, or g. Makes names feel specific, energetic, and easier to recall.',
+  'plosives':'A sharp burst of sound — like b, p, t, d, k, or g. Makes names feel specific, energetic, and easier to recall.',
+  'alliteration':'When a name repeats the same opening sound (e.g. Coca-Cola). Creates a smooth, satisfying rhythm that helps people remember it.',
+  'assonance':'Repetition of vowel sounds within a name (e.g. Ramada Inn). Adds warmth and a musical quality that aids recall.',
+  'consonance':'Repetition of consonant sounds with different vowels in between (e.g. Hamburger Helper). Creates a distinctive, rhythmic pattern.',
+  'prosodic':'Relating to the rhythm and musicality of spoken words — stress, syllable patterns, and cadence that make a name satisfying to say.',
+  'phonetic symbolism':'The idea that certain sounds carry inherent meaning — hard sounds feel strong and fast, soft sounds feel gentle and serene.',
+  'vowel density':'The ratio of vowels to total letters. Above 0.4 creates natural fluidity. Below 0.4 can feel harsh or difficult to say.',
+  'phonetic ambiguity':'When hearing a name does not make clear how to spell it, or seeing it does not make clear how to say it. Creates friction and recall errors.',
 };
 
-function addTooltips(el) {
-  if (!el) return;
-  el.innerHTML = el.innerHTML.replace(/\b(fricative|velar|sibilant|plosive|alliteration|assonance|consonance|prosodic|phonetic symbolism|vowel density)s?\b/gi, (match) => {
-    const key = match.toLowerCase().replace(/s$/, '');
-    const tip = TOOLTIPS[key] || TOOLTIPS[match.toLowerCase()];
-    if (!tip) return match;
-    return '<span class="tooltip-wrap"><span class="tooltip-word">' + match + '</span><span class="tooltip-box">' + tip + '</span></span>';
+let ED=null,curPID=null,altBusy=false;
+let sClient=new Set(),sCompare=new Set();
+
+function getProjs(){try{return JSON.parse(localStorage.getItem('dn_projs')||'[]');}catch{return[];}}
+function setProjs(p){localStorage.setItem('dn_projs',JSON.stringify(p));}
+function saveProj(){
+  if(!ED||!curPID) return;
+  const ps=getProjs();const idx=ps.findIndex(p=>p.id===curPID);
+  const d={...ED,notes:document.getElementById('pnotes').value||''};
+  if(idx>=0)ps[idx]={id:curPID,date:ps[idx].date,d};
+  else ps.unshift({id:curPID,date:new Date().toISOString(),d});
+  setProjs(ps);renderSB();
+}
+function toggleSB(){const s=document.getElementById('sb'),o=document.getElementById('sov');if(s.classList.contains('open')){s.classList.remove('open');o.classList.remove('show');}else{renderSB();s.classList.add('open');o.classList.add('show');}}
+function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('sov').classList.remove('show');}
+function renderSB(){
+  const ps=getProjs();
+  document.getElementById('pdot').classList.toggle('on',ps.length>0);
+  const l=document.getElementById('sblist');
+  if(!ps.length){l.innerHTML='<div class="sidebar-empty">No saved projects yet.<br>Run an evaluation to get started.</div>';return;}
+  l.innerHTML=ps.map(p=>`<div class="proj-item${p.id===curPID?' active':''}" onclick="loadP('${p.id}')"><button class="proj-del" onclick="delP(event,'${p.id}')">×</button><div class="proj-item-name">${p.d.project||'Untitled'}</div><div class="proj-item-meta">${p.d.names.length} names · ${new Date(p.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div>`).join('');
+}
+function loadP(id){
+  const ps=getProjs();const p=ps.find(x=>x.id===id);if(!p)return;
+  ED={...p.d};curPID=id;sClient=new Set();sCompare=new Set();
+  document.getElementById('fv').style.display='none';
+  document.getElementById('lv').style.display='none';
+  document.getElementById('rv').style.display='block';
+  document.getElementById('rtitle').textContent=ED.project||'Results';
+  document.getElementById('rsub').textContent=`${ED.names.length} names · ${ED.market||''} · ${ED.distance||''}`;
+  document.getElementById('pnotes').value=p.d.notes||'';
+  renderTable();renderSum();
+  document.getElementById('altc').innerHTML='';
+  if(ED.names.length>0)showDet(ED.names[0],0);
+  sw('i');closeSB();renderSB();
+}
+function delP(e,id){e.stopPropagation();setProjs(getProjs().filter(p=>p.id!==id));if(curPID===id)curPID=null;renderSB();toast('Project deleted');}
+function clearAll(){if(!confirm('Delete all saved projects?'))return;localStorage.removeItem('dn_projs');renderSB();toast('All projects cleared');}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function sc(s){return s>=4?'sh':s===3?'sm':'sl';}
+function selDist(el,v){document.querySelectorAll('.dist-opt').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');document.getElementById('ndist').value=v;}
+function getNames(){return document.getElementById('ninput').value.split('\n').map(s=>s.trim()).filter(Boolean);}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('ninput').addEventListener('input',()=>{const n=getNames().length;document.getElementById('ncount').textContent=n+' name'+(n!==1?'s':'')+' entered';});
+  renderSB();
+});
+function updSC(){document.getElementById('scounts').textContent=`${sClient.size} for client · ${sCompare.size} for compare`;}
+function sw(t){
+  ['i','c','m'].forEach(x=>{document.getElementById('t'+x).classList.toggle('active',x===t);document.getElementById(x==='i'?'ip':x==='c'?'cp':'mp').style.display=x===t?'block':'none';});
+  if(t==='c')renderCC();if(t==='m')renderCmp();
+}
+function resetForm(){ED=null;curPID=null;sClient=new Set();sCompare=new Set();document.getElementById('fv').style.display='block';document.getElementById('rv').style.display='none';document.getElementById('dc').innerHTML='';document.getElementById('sc2').innerHTML='';document.getElementById('altc').innerHTML='';document.getElementById('err').style.display='none';sw('i');}
+
+function addTips(el){
+  if(!el)return;
+  const pat=Object.keys(TIPS).join('|');
+  const rx=new RegExp('\\b('+pat+')\\b','gi');
+  el.innerHTML=el.innerHTML.replace(rx,m=>{const k=m.toLowerCase();const tip=TIPS[k];if(!tip)return m;return`<span class="tw"><span class="tw-word">${m}</span><span class="tw-tip">${tip}</span></span>`;});
+}
+
+function renderTable(){
+  if(!ED)return;
+  const tb=document.getElementById('rtbody');tb.innerHTML='';
+  ED.names.forEach((item,i)=>{
+    const tr=document.createElement('tr');tr.id='row'+i;
+    const ab=document.createElement('button');ab.className='add-btn'+(sClient.has(item.name)?' added':'');ab.textContent=sClient.has(item.name)?'Added':'Add';ab.onclick=e=>{e.stopPropagation();togClient(item.name,ab);};
+    const cb=document.createElement('button');cb.className='cmp-btn'+(sCompare.has(item.name)?' on':'');cb.textContent=sCompare.has(item.name)?'Selected':'Select';cb.onclick=e=>{e.stopPropagation();togCmp(item.name,cb);};
+    tr.innerHTML=`<td><span class="rank-b ${i<3?'top':''}">${i+1}</span></td><td class="name-cell">${item.name}</td><td><span class="sp ${sc(item.pronunciation)}">${item.pronunciation}/5</span></td><td><span class="sp ${sc(item.memorability)}">${item.memorability}/5</span></td><td id="dp${i}"><span class="sp ${sc(item.distance)}">${item.distance}/5</span></td><td><span class="total-score" id="tot${i}">${item.total}</span><span style="font-size:11px;color:var(--mid)">/15</span></td><td></td><td></td>`;
+    tr.cells[6].appendChild(ab);tr.cells[7].appendChild(cb);tr.onclick=()=>showDet(item,i);tb.appendChild(tr);
   });
+  updSC();
 }
+function togClient(n,btn){if(sClient.has(n)){sClient.delete(n);btn.textContent='Add';btn.classList.remove('added');}else{sClient.add(n);btn.textContent='Added';btn.classList.add('added');}updSC();saveProj();}
+function togCmp(n,btn){if(sCompare.has(n)){sCompare.delete(n);btn.textContent='Select';btn.classList.remove('on');}else if(sCompare.size<3){sCompare.add(n);btn.textContent='Selected';btn.classList.add('on');}else{toast('Maximum 3 names for comparison');return;}updSC();}
 
-function switchTab(tab) {
-  document.getElementById('tab-internal').classList.toggle('active', tab === 'internal');
-  document.getElementById('tab-client').classList.toggle('active', tab === 'client');
-  document.getElementById('internal-panel').style.display = tab === 'internal' ? 'block' : 'none';
-  document.getElementById('client-panel').style.display = tab === 'client' ? 'block' : 'none';
-  if (tab === 'client') renderClientCards();
-}
-
-function updateForwardCount() {
-  const n = selectedForClient.size;
-  document.getElementById('forward-count-label').textContent = n + ' selected';
-}
-
-function toggleForClient(name, btn) {
-  if (selectedForClient.has(name)) {
-    selectedForClient.delete(name);
-    btn.textContent = 'Add';
-    btn.classList.remove('added');
-  } else {
-    selectedForClient.add(name);
-    btn.textContent = 'Added';
-    btn.classList.add('added');
-  }
-  updateForwardCount();
-}
-
-function renderResults() {
-  if (!evaluationData) return;
-  const tbody = document.getElementById('results-table-body');
-  tbody.innerHTML = '';
-  evaluationData.names.forEach((item, i) => {
-    const tr = document.createElement('tr');
-    tr.id = 'row-' + i;
-    const btn = document.createElement('button');
-    btn.className = 'add-btn' + (selectedForClient.has(item.name) ? ' added' : '');
-    btn.textContent = selectedForClient.has(item.name) ? 'Added' : 'Add';
-    btn.onclick = (e) => { e.stopPropagation(); toggleForClient(item.name, btn); };
-
-    tr.innerHTML = `
-      <td><span class="rank-badge ${i < 3 ? 'top' : ''}">${i+1}</span></td>
-      <td class="name-cell">${item.name}</td>
-      <td><span class="score-pill ${getScoreClass(item.pronunciation)}">${item.pronunciation}/5</span></td>
-      <td><span class="score-pill ${getScoreClass(item.memorability)}">${item.memorability}/5</span></td>
-      <td><span class="score-pill ${getScoreClass(item.distance)}">${item.distance}/5</span></td>
-      <td><span class="total-score">${item.total}</span><span style="font-size:11px;color:var(--mid)">/15</span></td>
-      <td></td>
-    `;
-    tr.querySelector('td:last-child').appendChild(btn);
-    tr.onclick = () => showDetail(item, i);
-    tbody.appendChild(tr);
-  });
-  updateForwardCount();
-}
-
-function showDetail(item, idx) {
-  document.querySelectorAll('.score-table tbody tr').forEach(r => r.classList.remove('selected'));
-  const row = document.getElementById('row-' + idx);
-  if (row) row.classList.add('selected');
-
-  document.getElementById('detail-panel-container').innerHTML = `
+function showDet(item,idx){
+  document.querySelectorAll('.score-table tbody tr').forEach(r=>r.classList.remove('sel'));
+  const r=document.getElementById('row'+idx);if(r)r.classList.add('sel');
+  document.getElementById('dc').innerHTML=`
     <div class="detail-panel">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div class="detail-name">${item.name}</div>
-          <div style="font-size:13px;color:var(--mid);">${item.type || ''}</div>
-        </div>
-        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">#${idx+1} of ${evaluationData.names.length}</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div><div class="detail-name">${item.name}</div><div class="detail-type">${item.type||''}</div></div>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">#${idx+1} of ${ED.names.length}</span>
       </div>
-      <div class="detail-scores">
-        <div class="score-card"><div class="score-card-label">Pronunciation</div><div class="score-card-val">${item.pronunciation}<span class="score-card-max">/5</span></div></div>
-        <div class="score-card"><div class="score-card-label">Memorability</div><div class="score-card-val">${item.memorability}<span class="score-card-max">/5</span></div></div>
-        <div class="score-card"><div class="score-card-label">Distance</div><div class="score-card-val">${item.distance}<span class="score-card-max">/5</span></div></div>
-        <div class="score-card total"><div class="score-card-label">Total</div><div class="score-card-val">${item.total}<span class="score-card-max">/15</span></div></div>
+      <div class="score-cards">
+        <div class="sc"><div class="sc-label">Pronunciation</div><div class="sc-val">${item.pronunciation}<span class="sc-max">/5</span></div></div>
+        <div class="sc"><div class="sc-label">Memorability</div><div class="sc-val">${item.memorability}<span class="sc-max">/5</span></div></div>
+        <div class="sc editable" onclick="editDist(${idx})" title="Click to edit"><div class="sc-label">Distance ✎</div><div class="sc-val" id="dsd${idx}">${item.distance}<span class="sc-max">/5</span></div></div>
+        <div class="sc total"><div class="sc-label">Total score</div><div class="sc-val" id="dtot${idx}">${item.total}<span class="sc-max">/15</span></div></div>
       </div>
-      <div class="phonetic-grid">
-        <div class="phonetic-item"><div class="phonetic-item-label">Vowel density</div><div class="phonetic-item-val">${item.vowelDensity}</div></div>
-        <div class="phonetic-item"><div class="phonetic-item-label">Letters</div><div class="phonetic-item-val">${item.letters}</div></div>
-        <div class="phonetic-item"><div class="phonetic-item-label">Syllables</div><div class="phonetic-item-val">${item.syllables}</div></div>
-        <div class="phonetic-item"><div class="phonetic-item-label">Initial phoneme</div><div class="phonetic-item-val">${item.initialPhoneme || '—'}</div></div>
+      <div class="ph-grid">
+        <div class="ph-item"><div class="ph-label">Vowel density</div><div class="ph-val">${item.vowelDensity}</div></div>
+        <div class="ph-item"><div class="ph-label">Letters</div><div class="ph-val">${item.letters}</div></div>
+        <div class="ph-item"><div class="ph-label">Syllables</div><div class="ph-val">${item.syllables}</div></div>
+        <div class="ph-item"><div class="ph-label">Initial phoneme</div><div class="ph-val">${item.initialPhoneme||'—'}</div></div>
       </div>
-      <div class="positives-neg">
-        <div class="pos-box"><div class="box-title">Positives</div><ul class="bullet-list">${(item.positives||[]).map(p=>`<li>${p}</li>`).join('')}</ul></div>
-        <div class="neg-box"><div class="box-title">Negatives</div><ul class="bullet-list">${(item.negatives||[]).map(n=>`<li>${n}</li>`).join('')}</ul></div>
+      <div class="pn-grid">
+        <div class="pos-box"><div class="box-lbl">Positives</div><ul class="bl" id="pos${idx}">${(item.positives||[]).map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        <div class="neg-box"><div class="box-lbl">Negatives</div><ul class="bl" id="neg${idx}">${(item.negatives||[]).map(n=>`<li>${n}</li>`).join('')}</ul></div>
       </div>
-      <div class="recommendation-box">
-        <div class="box-title">Strategic recommendation</div>
-        <p>${item.recommendation || ''}</p>
-      </div>
-    </div>
-  `;
-  // Add tooltips to technical terms
-  document.getElementById('detail-panel-container').querySelectorAll('.bullet-list li, .recommendation-box p').forEach(addTooltips);
+      <div class="rec-box"><div class="box-lbl">Strategic recommendation</div><p id="rec${idx}">${item.recommendation||''}</p></div>
+    </div>`;
+  [`pos${idx}`,`neg${idx}`,`rec${idx}`].forEach(id=>{const el=document.getElementById(id);if(el)addTips(el);});
 }
 
-function renderClientCards() {
-  const items = evaluationData.names.filter(n => selectedForClient.has(n.name));
-  document.getElementById('client-count').textContent = items.length;
-  if (items.length === 0) {
-    document.getElementById('client-cards-container').innerHTML = '<div class="empty-state">No names selected yet.<br>Go to internal analysis and click Add on the names you want to present.</div>';
-    return;
-  }
-  document.getElementById('client-cards-container').innerHTML = items.map((item, i) => `
-    <div class="client-card">
-      <div class="client-card-accent"></div>
-      <div class="client-card-accent2"></div>
+function editDist(idx){
+  const item=ED.names[idx];const disp=document.getElementById(`dsd${idx}`);if(!disp)return;
+  const cur=item.distance;
+  disp.innerHTML=`<input class="edit-input" id="ei${idx}" type="number" min="1" max="5" value="${cur}" onclick="event.stopPropagation()">`;
+  const inp=document.getElementById(`ei${idx}`);inp.focus();inp.select();
+  const commit=()=>{
+    const v=Math.min(5,Math.max(1,parseInt(inp.value)||cur));
+    item.distance=v;item.total=item.pronunciation+item.memorability+v;
+    disp.innerHTML=`${v}<span class="sc-max">/5</span>`;
+    const dp=document.getElementById(`dp${idx}`);if(dp)dp.innerHTML=`<span class="sp ${sc(v)}">${v}/5</span>`;
+    const tt=document.getElementById(`tot${idx}`);if(tt)tt.textContent=item.total;
+    const dt=document.getElementById(`dtot${idx}`);if(dt)dt.innerHTML=`${item.total}<span class="sc-max">/15</span>`;
+    saveProj();toast('Distance score updated');
+  };
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit();if(e.key==='Escape')disp.innerHTML=`${cur}<span class="sc-max">/5</span>`;});
+}
+
+function renderSum(){
+  if(!ED)return;
+  document.getElementById('sc2').innerHTML=`<div class="summary-box"><h4>Summary</h4><p>${ED.summary||''}</p><div class="trbl" style="margin-top:14px;"><p style="font-size:13px;line-height:1.7;"><strong>Recommendations:</strong> ${ED.troubleshooting||''}</p></div></div>`;
+}
+
+function renderCC(){
+  const items=ED.names.filter(n=>sClient.has(n.name));
+  document.getElementById('ccount').textContent=items.length;
+  const c=document.getElementById('ccards');
+  if(!items.length){c.innerHTML='<div class="empty-cl">No names selected yet.<br>Go to internal analysis and click Add on the names you want to present.</div>';return;}
+  c.innerHTML=items.map((item,i)=>`
+    <div class="cc">
+      <div class="cc-glow"></div><div class="cc-glow2"></div>
       <button class="copy-card-btn" onclick="copyCard('${item.name.replace(/'/g,"\\'")}')">Copy card</button>
-      <div class="client-card-num">0${i+1} / ${String(items.length).padStart(2,'0')}</div>
-      <div class="tag-type">${item.type || 'Brand name'}</div>
-      <div class="client-card-name">${item.name}</div>
-      <div class="client-score-row">
-        <div class="client-score-chip">Pronunciation <span>${item.pronunciation}/5</span></div>
-        <div class="client-score-chip">Memorability <span>${item.memorability}/5</span></div>
-        <div class="client-score-chip">Distance <span>${item.distance}/5</span></div>
+      <div class="cc-num">0${i+1} / ${String(items.length).padStart(2,'0')}</div>
+      <div class="cc-tag">${item.type||'Brand name'}</div>
+      <div class="cc-name">${item.name}</div>
+      <div class="cc-chips">
+        <div class="cc-chip">Pronunciation <strong>${item.pronunciation}/5</strong></div>
+        <div class="cc-chip">Memorability <strong>${item.memorability}/5</strong></div>
+        <div class="cc-chip">Distance <strong>${item.distance}/5</strong></div>
       </div>
-      <div class="client-body">
-        <div>
-          <p class="client-rec">${item.recommendation || ''}</p>
-          <div style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.25);font-family:'DM Mono',monospace;">VD ${item.vowelDensity} · ${item.letters} letters · ${item.syllables} syllables</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div class="client-total">${item.total}</div>
-          <div class="client-total-label">out of 15</div>
-        </div>
+      <div class="cc-body">
+        <div><p class="cc-rec">${item.recommendation||''}</p><div class="cc-meta">VD ${item.vowelDensity} · ${item.letters} letters · ${item.syllables} syllables</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div class="cc-tot">${item.total}</div><div class="cc-tot-lbl">out of 15</div></div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function copyCard(name) {
-  const item = evaluationData.names.find(n => n.name === name);
-  if (!item) return;
-  const text = `${item.name}\n${item.type || ''}\n\nPronunciation: ${item.pronunciation}/5  |  Memorability: ${item.memorability}/5  |  Distance: ${item.distance}/5  |  Total: ${item.total}/15\nVowel density: ${item.vowelDensity}  |  Letters: ${item.letters}  |  Syllables: ${item.syllables}\n\nStrategic recommendation:\n${item.recommendation}\n\nPositives:\n${(item.positives||[]).map(p=>'— '+p).join('\n')}\n\nNegatives:\n${(item.negatives||[]).map(n=>'— '+n).join('\n')}`;
-  navigator.clipboard.writeText(text).then(() => alert('Card copied to clipboard'));
+function renderCmp(){
+  const items=ED.names.filter(n=>sCompare.has(n.name));
+  const hint=document.getElementById('cmphint');const gc=document.getElementById('cmpgrid');
+  if(items.length<2){hint.style.display='block';hint.textContent=items.length===0?'Select 2 or 3 names using the Compare column in the table above.':'Select one more name to compare.';gc.innerHTML='';return;}
+  hint.style.display='none';
+  const cls=items.length===3?'c3':'c2';
+  gc.innerHTML=`<div class="cmp-grid ${cls}">${items.map(item=>`
+    <div class="cmp-card">
+      <div class="cmp-name">${item.name}</div><div class="cmp-type">${item.type||''}</div>
+      ${[{l:'Pronunciation',v:item.pronunciation,m:5},{l:'Memorability',v:item.memorability,m:5},{l:'Distance',v:item.distance,m:5}].map(r=>`
+        <div class="cmp-row"><div class="cmp-row-top"><span class="cmp-row-lbl">${r.l}</span><span class="cmp-row-val">${r.v}/${r.m}</span></div>
+        <div class="cmp-bar"><div class="cmp-bar-fill" style="width:${(r.v/r.m)*100}%;background:${r.v>=4?'#2e7d32':r.v===3?'#e65100':'#c62828'}"></div></div></div>`).join('')}
+      <div class="cmp-tot">${item.total}<span style="font-size:16px;color:var(--mid);font-weight:400;">/15</span></div>
+      <div style="font-size:11px;color:var(--mid);font-family:'DM Mono',monospace;margin-bottom:8px;">VD ${item.vowelDensity} · ${item.letters} letters · ${item.syllables} syllables</div>
+      <div class="cmp-rec">${item.recommendation||''}</div>
+    </div>`).join('')}</div>`;
 }
 
-function copyClientReport() {
-  const items = evaluationData.names.filter(n => selectedForClient.has(n.name));
-  if (!items.length) { alert('No names selected'); return; }
-  const text = `DENNIS NAMING — CLIENT PRESENTATION\n${evaluationData.project}\n${'—'.repeat(40)}\n\n` +
-    items.map((item, i) => `${String(i+1).padStart(2,'0')}. ${item.name}\n${item.type || ''}\n\nScores: Pronunciation ${item.pronunciation}/5  ·  Memorability ${item.memorability}/5  ·  Distance ${item.distance}/5  ·  Total ${item.total}/15\nVowel density: ${item.vowelDensity}  |  Letters: ${item.letters}  |  Syllables: ${item.syllables}\n\nRecommendation:\n${item.recommendation}\n\nPositives: ${(item.positives||[]).join('; ')}\nNegatives: ${(item.negatives||[]).join('; ')}`).join('\n\n' + '—'.repeat(40) + '\n\n');
-  navigator.clipboard.writeText(text).then(() => alert('Client report copied to clipboard'));
+async function suggestAlt(){
+  if(altBusy||!ED)return;altBusy=true;
+  const c=document.getElementById('altc');
+  c.innerHTML=`<div class="alt-section"><div class="alt-loading"><div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;"></div>Generating stronger alternatives...</div></div>`;
+  const weak=ED.names.filter(n=>n.total<11).map(n=>n.name);
+  const prompt=`You are Núria Namer using the Dennis Naming Scoring System.\n${ND}\n\nPROJECT: ${ED.project}\nBRAND CONCEPT: ${ED.concept}\nTARGET MARKET: ${ED.market}\nDISTANCE GOAL: ${ED.distance}\nSECTOR: ${ED.sector||'not specified'}\n\nCURRENT NAMES: ${ED.names.map(n=>n.name).join(', ')}\nWEAKER NAMES (below 11/15): ${weak.length?weak.join(', '):'none'}\n\nGenerate 6 alternative brand name suggestions that would score 11 or above using the rubric. Fresh, relevant, fitting the distance goal. Avoid names already listed.\n\nReturn ONLY valid JSON:\n{"alternatives":[{"name":"ExampleName","estimatedScore":12,"type":"Connotative","rationale":"One sentence explaining why this name scores well and fits the brief."}]}`;
+  try{
+    const res=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=(data.content||[]).map(x=>x.text||'').join('');
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    ED.alternatives=parsed.alternatives;saveProj();
+    c.innerHTML=`<div class="alt-section"><div class="alt-hdr"><div class="alt-title">Suggested alternatives — targeting 11+/15</div><button class="btn-ghost" onclick="suggestAlt()">Regenerate</button></div><div class="alt-grid">${parsed.alternatives.map(a=>`<div class="alt-card"><div class="alt-name">${a.name}</div><div class="alt-score">~${a.estimatedScore}/15</div><div class="alt-type">${a.type||''}</div><div class="alt-rat">${a.rationale||''}</div></div>`).join('')}</div></div>`;
+  }catch(err){c.innerHTML=`<div class="alt-section"><p style="color:#c62828;font-size:13px;">Could not generate alternatives: ${err.message}</p></div>`;}
+  altBusy=false;
 }
 
-function copyInternalReport() {
-  if (!evaluationData) return;
-  const today = new Date().toISOString().split('T')[0];
-  const header = `${today}\n\nDENNIS NAMING — INTERNAL ANALYSIS\nProject: ${evaluationData.project}\nTarget market: ${evaluationData.market}\nBrand concept: ${evaluationData.concept}\n\n`;
-  const table = `SCORES (ranked)\n${'—'.repeat(60)}\n` +
-    evaluationData.names.map((item, i) => `${i+1}. ${item.name}  —  Pronunciation ${item.pronunciation}/5  |  Memorability ${item.memorability}/5  |  Distance ${item.distance}/5  |  Total ${item.total}/15`).join('\n');
-  const detail = `\n\n${'—'.repeat(60)}\n\nDETAILED ANALYSIS\n\n` +
-    evaluationData.names.map(item => `${item.name} (${item.type || '—'})\nVD: ${item.vowelDensity}  |  Letters: ${item.letters}  |  Syllables: ${item.syllables}  |  Initial: ${item.initialPhoneme||'—'}\nPositives: ${(item.positives||[]).join('; ')}\nNegatives: ${(item.negatives||[]).join('; ')}\nRecommendation: ${item.recommendation}`).join('\n\n—\n\n');
-  const summary = `\n\n${'—'.repeat(60)}\n\nSUMMARY\n${evaluationData.summary || ''}\n\nTROUBLESHOOTING\n${evaluationData.troubleshooting || ''}`;
-  navigator.clipboard.writeText(header + table + detail + summary).then(() => alert('Internal report copied to clipboard'));
+function copyCard(name){
+  const item=ED.names.find(n=>n.name===name);if(!item)return;
+  const t=[item.name,item.type||'','',`Pronunciation: ${item.pronunciation}/5  ·  Memorability: ${item.memorability}/5  ·  Distance: ${item.distance}/5  ·  Total: ${item.total}/15`,`Vowel density: ${item.vowelDensity}  ·  Letters: ${item.letters}  ·  Syllables: ${item.syllables}`,'','Recommendation:',item.recommendation,'','Positives:',...(item.positives||[]).map(p=>'— '+p),'','Negatives:',...(item.negatives||[]).map(n=>'— '+n)].join('\n');
+  navigator.clipboard.writeText(t).then(()=>toast('Card copied'));
+}
+function copyClient(){
+  const items=ED.names.filter(n=>sClient.has(n.name));if(!items.length){toast('No names selected');return;}
+  const today=new Date().toISOString().split('T')[0];const d='─'.repeat(44);
+  const t=[`DENNIS NAMING — CLIENT PRESENTATION`,`Project: ${ED.project}`,`Date: ${today}`,d,'',...items.flatMap((item,i)=>[`0${i+1}. ${item.name}`,item.type||'','',`Scores: Pronunciation ${item.pronunciation}/5  ·  Memorability ${item.memorability}/5  ·  Distance ${item.distance}/5  ·  Total ${item.total}/15`,`Vowel density: ${item.vowelDensity}  ·  Letters: ${item.letters}  ·  Syllables: ${item.syllables}`,'','Recommendation:',item.recommendation,'','Positives: '+(item.positives||[]).join('; '),'Negatives: '+(item.negatives||[]).join('; '),'',d,''])].join('\n');
+  navigator.clipboard.writeText(t).then(()=>toast('Client report copied'));
+}
+function copyInt(){
+  if(!ED)return;
+  const today=new Date().toISOString().split('T')[0];const d='─'.repeat(54);
+  const notes=document.getElementById('pnotes').value;
+  const t=[today,'','DENNIS NAMING — INTERNAL ANALYSIS',`Project: ${ED.project}`,`Market: ${ED.market}`,`Concept: ${ED.concept}`,notes?`Notes: ${notes}`:'','',d,'SCORES (ranked)',d,...ED.names.map((item,i)=>`${i+1}. ${item.name.padEnd(18)} P:${item.pronunciation}/5  M:${item.memorability}/5  D:${item.distance}/5  Total:${item.total}/15`),'',d,'DETAILED ANALYSIS',d,'',...ED.names.flatMap(item=>[item.name,`Type: ${item.type}  VD: ${item.vowelDensity}  Letters: ${item.letters}  Syllables: ${item.syllables}`,`Positives: ${(item.positives||[]).join('; ')}`,`Negatives: ${(item.negatives||[]).join('; ')}`,`Recommendation: ${item.recommendation}`,'']),'',d,'SUMMARY',ED.summary||'','','RECOMMENDATIONS',ED.troubleshooting||'','',d].join('\n');
+  navigator.clipboard.writeText(t).then(()=>toast('Internal report copied'));
 }
 
-function resetForm() {
-  document.getElementById('form-view').style.display = 'block';
-  document.getElementById('results-view').style.display = 'none';
-  evaluationData = null;
-  selectedForClient = new Set();
-}
+async function runEval(){
+  const project=document.getElementById('pname').value.trim();
+  const concept=document.getElementById('bconcept').value.trim();
+  const names=getNames();
+  const lang=document.getElementById('tlang').value;
+  const distance=document.getElementById('ndist').value;
+  const sector=document.getElementById('sector').value.trim();
+  const notes=document.getElementById('inotes').value.trim();
+  const err=document.getElementById('err');
+  err.style.display='none';
+  if(!project){err.textContent='Please enter a project name.';err.style.display='block';return;}
+  if(!concept){err.textContent='Please describe the brand concept.';err.style.display='block';return;}
+  if(!names.length){err.textContent='Please enter at least one name.';err.style.display='block';return;}
+  if(names.length>10){err.textContent='Maximum 10 names per evaluation.';err.style.display='block';return;}
 
-async function runEvaluation() {
-  const project = document.getElementById('project-name').value.trim();
-  const concept = document.getElementById('brand-concept').value.trim();
-  const names = getNames();
-  const lang = document.getElementById('target-lang').value;
-  const distance = document.getElementById('naming-distance').value;
-  const sector = document.getElementById('sector').value.trim();
-  const errorEl = document.getElementById('input-error');
-  errorEl.style.display = 'none';
+  document.getElementById('fv').style.display='none';
+  document.getElementById('lv').style.display='block';
+  const pf=document.getElementById('pfill');const lb=document.getElementById('llbl');
+  let prog=5;
+  const iv=setInterval(()=>{prog=Math.min(prog+(85/names.length),88);pf.style.width=prog+'%';const idx=Math.min(Math.floor((prog/90)*names.length),names.length-1);lb.textContent='Evaluating: '+names[idx];},700);
 
-  if (!project) { errorEl.textContent = 'Please enter a project name.'; errorEl.style.display = 'block'; return; }
-  if (!concept) { errorEl.textContent = 'Please describe the brand concept.'; errorEl.style.display = 'block'; return; }
-  if (names.length === 0) { errorEl.textContent = 'Please enter at least one candidate name.'; errorEl.style.display = 'block'; return; }
-  if (names.length > 10) { errorEl.textContent = 'Maximum 10 names per evaluation.'; errorEl.style.display = 'block'; return; }
+  const prompt=`You are Núria Namer, a rigorous brand naming evaluator using the Dennis Naming Scoring System. Work through every criterion methodically to ensure consistent, reproducible scores.
 
-  document.getElementById('form-view').style.display = 'none';
-  document.getElementById('loading-view').style.display = 'block';
-
-  const progressFill = document.getElementById('progress-fill');
-  const loadingLabel = document.getElementById('loading-name-label');
-  let progress = 5;
-  const interval = setInterval(() => {
-    progress = Math.min(progress + (85 / names.length), 88);
-    progressFill.style.width = progress + '%';
-    const idx = Math.min(Math.floor((progress / 90) * names.length), names.length - 1);
-    loadingLabel.textContent = 'Evaluating: ' + names[idx];
-  }, 900);
-
-  const prompt = `You are Núria Namer, a rigorous brand naming evaluator using the Dennis Naming Scoring System.
-
-${NAMING_DOC}
+${ND}
 
 PROJECT: ${project}
-TARGET MARKET / LANGUAGE: ${lang}
-SECTOR: ${sector || 'Not specified'}
+TARGET MARKET: ${lang}
+SECTOR: ${sector||'Not specified'}
 BRAND CONCEPT: ${concept}
 NAMING DISTANCE GOAL: ${distance}
 
-CANDIDATE NAMES (${names.length} total):
-${names.map((n,i) => `${i+1}. ${n}`).join('\n')}
+NAMES TO EVALUATE:
+${names.map((n,i)=>`${i+1}. ${n}`).join('\n')}
 
-Evaluate ALL names using the scoring rubric strictly. Return ONLY a valid JSON object — no preamble, no markdown, no backticks:
+For EACH name, check every criterion explicitly before scoring:
 
-{
-  "names": [
-    {
-      "name": "CandidateName",
-      "pronunciation": 4,
-      "memorability": 3,
-      "distance": 5,
-      "total": 12,
-      "vowelDensity": "0.43",
-      "letters": 7,
-      "syllables": 3,
-      "initialPhoneme": "Fricative /k/",
-      "type": "Connotative",
-      "positives": ["Strong vowel density supports fluidity", "Fricative initial triggers emotional response"],
-      "negatives": ["7 letters reduces recall ease", "No prosodic device detected"],
-      "recommendation": "One paragraph strategic recommendation in context of the brand."
-    }
-  ],
-  "summary": "Brief synthesis across all names — patterns, strengths, weaknesses.",
-  "troubleshooting": "Actionable recommendations to improve weak names or refine naming direction."
-}
+PRONUNCIATION (check 5 items, then score):
+1. Phonetic symbolism aligned to brand strategy? (yes/no + brief reason)
+2. No phonetic ambiguity? (yes/no)
+3. Starts with fricative or velar? (yes/no + which sound)
+4. No silent letters? (yes/no)
+5. Vowel density above 0.4? (calculate: count vowels then divide by total letters)
+→ Score: 5=all met, 4=one missing, 3=two missing, 1=three or more missing
 
-Sort names array by total score descending. Return ONLY valid JSON.`;
+MEMORABILITY (check 4 items, then score):
+1. Vowel density above 0.4? (use same calculation)
+2. Starts with fricative or velar? (yes/no)
+3. Short name, ideally 3–6 letters? (count letters)
+4. Follows at least one prosodic device? (which one, or none)
+→ Score: 5=all met, 4=one missing, 3=two missing, 1=three or more missing
 
-  try {
-    const response = await fetch('/api/evaluate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
-    });
+DISTANCE (check 3 items, then score):
+1. Correct distance for goal (${distance})? (yes/no + brief reason)
+2. Phonetic symbolism aligned to brand strategy? (yes/no)
+3. Follows at least one prosodic device? (yes/no)
+→ Score: 5=all met, 4=one missing, 3=two missing, 1=three or more missing
 
-    clearInterval(interval);
-    progressFill.style.width = '100%';
+TOTAL = sum of three scores.
 
-    const data = await response.json();
-    const raw = data.content.map(c => c.text || '').join('');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+Write positives and negatives in plain English first, with technical detail in parentheses. Example: "Easy to say out loud — the vowel-to-consonant balance creates natural flow (vowel density 0.44, above the 0.4 threshold)"
 
-    evaluationData = { project, market: lang, concept, names: parsed.names, summary: parsed.summary, troubleshooting: parsed.troubleshooting };
+Return ONLY valid JSON, no preamble, no markdown:
+{"names":[{"name":"ExampleName","pronunciation":4,"memorability":3,"distance":5,"total":12,"vowelDensity":"0.43","letters":7,"syllables":3,"initialPhoneme":"Velar /k/","type":"Connotative","positives":["Plain-English positive (technical detail in parentheses)"],"negatives":["Plain-English negative (technical detail in parentheses)"],"recommendation":"One paragraph strategic recommendation in context of the brand and market."}],"summary":"Brief synthesis across all names — key patterns, strengths and weaknesses.","troubleshooting":"Specific actionable recommendations to improve weak names or refine the naming direction."}
 
-    document.getElementById('loading-view').style.display = 'none';
-    document.getElementById('results-view').style.display = 'block';
-    document.getElementById('results-project-title').textContent = project;
-    document.getElementById('results-sub').textContent = parsed.names.length + ' names evaluated  ·  ' + lang + '  ·  ' + distance;
+Sort by total score descending. Include all ${names.length} names. Return ONLY valid JSON.`;
 
-    renderResults();
-
-    document.getElementById('summary-panel').innerHTML = `
-      <div class="summary-box">
-        <h4>Summary</h4>
-        <p>${parsed.summary || ''}</p>
-        <div class="troubleshoot-box" style="margin-top:14px;">
-          <p style="font-size:13px;line-height:1.7;color:var(--dark);"><strong>Troubleshooting:</strong> ${parsed.troubleshooting || ''}</p>
-        </div>
-      </div>
-    `;
-
-    if (parsed.names.length > 0) showDetail(parsed.names[0], 0);
-
-  } catch(err) {
-    clearInterval(interval);
-    document.getElementById('loading-view').style.display = 'none';
-    document.getElementById('form-view').style.display = 'block';
-    document.getElementById('input-error').textContent = 'Something went wrong: ' + err.message;
-    document.getElementById('input-error').style.display = 'block';
+  try{
+    const res=await fetch(WU,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    clearInterval(iv);pf.style.width='100%';
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    const raw=(data.content||[]).map(c=>c.text||'').join('');
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    ED={project,market:lang,concept,distance,sector,names:parsed.names,summary:parsed.summary,troubleshooting:parsed.troubleshooting};
+    curPID='proj_'+Date.now();sClient=new Set();sCompare=new Set();
+    document.getElementById('lv').style.display='none';
+    document.getElementById('rv').style.display='block';
+    document.getElementById('rtitle').textContent=project;
+    document.getElementById('rsub').textContent=`${parsed.names.length} names evaluated · ${lang} · ${distance}`;
+    document.getElementById('pnotes').value=notes;
+    renderTable();renderSum();document.getElementById('altc').innerHTML='';
+    if(parsed.names.length>0)showDet(parsed.names[0],0);
+    sw('i');saveProj();renderSB();
+  }catch(err2){
+    clearInterval(iv);
+    document.getElementById('lv').style.display='none';
+    document.getElementById('fv').style.display='block';
+    document.getElementById('err').textContent='Something went wrong: '+err2.message;
+    document.getElementById('err').style.display='block';
   }
 }
 </script>
